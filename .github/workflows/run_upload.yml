@@ -1,0 +1,26 @@
+name: TikTok Auto Upload
+
+on:
+  workflow_dispatch:  # تشغيل يدوي
+  schedule:
+    - cron: '0 12 * * *'  # تشغيل يومي الساعة 12 ظهرًا (توقيت UTC)
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install selenium
+
+      - name: Run upload script
+        run: python upload_script.py
