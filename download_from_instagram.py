@@ -52,3 +52,13 @@ for username in accounts:
         print(f"🚨 خطأ مع {username}: {e}")
 
 print("✅ تم تحميل الفيديوهات بنجاح.")
+import os
+
+print("\n📂 محتوى مجلد الفيديوهات:")
+video_folder = "videos"
+if os.path.exists(video_folder):
+    files = os.listdir(video_folder)
+    for f in files:
+        print("🟢", f)
+else:
+    print("🚫 مجلد الفيديوهات مش موجود")
