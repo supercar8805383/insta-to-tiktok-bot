@@ -1,5 +1,6 @@
 import os
 import random
+import json
 import instaloader
 
 # أنشئ مجلد للفيديوهات لو مش موجود
@@ -15,6 +16,7 @@ accounts = [
     "grozny_mka"
 ]
 
+# تحميل الكوكيز من ملف JSON
 L = instaloader.Instaloader(
     download_video_thumbnails=False,
     save_metadata=False,
@@ -22,8 +24,27 @@ L = instaloader.Instaloader(
     post_metadata_txt_pattern=""
 )
 
+cookies_path = "instagram_cookies.json"
+if os.path.exists(cookies_path):
+    with open(cookies_path, "r") as f:
+        cookies = json.load(f)
+
+    session = L.context._session
+    for cookie in cookies:
+        session.cookies.set(
+            name=cookie["name"],
+            value=cookie["value"],
+            domain=cookie["domain"],
+            path=cookie["path"]
+        )
+    print("🔐 تم تحميل الكوكيز بنجاح.")
+else:
+    print("🚫 ملف الكوكيز مش موجود.")
+    exit()
+
+# تحميل الفيديوهات
 for username in accounts:
-    print(f"🔍 جاري تحميل من: {username}")
+    print(f"\n🔍 جاري التحميل من: {username}")
     try:
         profile = instaloader.Profile.from_username(L.context, username)
         posts = list(profile.get_posts())
@@ -38,8 +59,8 @@ for username in accounts:
         for i, post in enumerate(selected_posts):
             print(f"⬇️ تحميل فيديو {i+1} من {username}")
             L.download_post(post, target="videos")
-            
-            # إعادة تسمية الفيديو والنص
+
+            # إعادة التسمية
             for file in os.listdir("videos"):
                 if file.endswith(".mp4") and username in file:
                     new_name = f"{username}_{i+1}.mp4"
@@ -51,9 +72,9 @@ for username in accounts:
     except Exception as e:
         print(f"🚨 خطأ مع {username}: {e}")
 
-print("✅ تم تحميل الفيديوهات بنجاح.")
-import os
+print("\n✅ تم تحميل الفيديوهات بنجاح.")
 
+# عرض الفيديوهات
 print("\n📂 محتوى مجلد الفيديوهات:")
 video_folder = "videos"
 if os.path.exists(video_folder):
