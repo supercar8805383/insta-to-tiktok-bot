@@ -1,26 +1,27 @@
-name: TikTok Auto Upload
+name: Instagram to TikTok
 
 on:
-  workflow_dispatch:  # تشغيل يدوي
-  schedule:
-    - cron: '0 12 * * *'  # تشغيل يومي الساعة 12 ظهرًا (توقيت UTC)
+  workflow_dispatch:
 
 jobs:
-  run-script:
+  run-scripts:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v3
+    - name: 🔄 Checkout Repo
+      uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+    - name: 🐍 Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          pip install selenium
+    - name: 📦 Install dependencies
+      run: |
+        pip install instaloader selenium
 
-      - name: Run upload script
-        run: python upload_script.py
+    - name: ⬇️ Download videos from Instagram
+      run: python download_from_instagram.py
+
+    - name: 🚀 Upload videos to TikTok
+      run: python upload_script.py
