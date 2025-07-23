@@ -1,47 +1,37 @@
-import instaloader
-import os
-import random
-import shutil
+import time
+import json
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
 
-# إنشاء فولدر للتخزين المؤقت
-DOWNLOAD_DIR = "downloads"
-if os.path.exists(DOWNLOAD_DIR):
-    shutil.rmtree(DOWNLOAD_DIR)
-os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+# إعداد Selenium
+options = Options()
+options.add_argument("--headless")  # لو عايز تشوف المتصفح شيل السطر ده
+options.add_argument("--no-sandbox")
+options.add_argument("--disable-dev-shm-usage")
+driver = webdriver.Chrome(options=options)
 
-# الصفحات المطلوبة
-profiles = [
-    "o_criminal_09",
-    "cars_.1m",
-    "v8.gallery",
-    "xmax_e_d_i_t",
-    "full_throttlemedia",
-    "grozny_mka"
-]
+# فتح TikTok
+driver.get("https://www.tiktok.com/")
 
-# تحميل الفيديوهات
-L = instaloader.Instaloader(dirname_pattern=DOWNLOAD_DIR + "/{profile}",
-                             download_videos=True,
-                             download_video_thumbnails=False,
-                             download_comments=False,
-                             post_metadata_txt_pattern="",
-                             save_metadata=False)
+# تحميل الكوكيز من ملف cookies.json
+with open("cookies.json", "r") as f:
+    cookies = json.load(f)
 
-for profile_name in profiles:
-    print(f"🔄 جاري تحميل المشاركات من {profile_name}...")
-    posts = instaloader.Profile.from_username(L.context, profile_name).get_posts()
-    
-    # جمع كل الفيديوهات
-    video_posts = [post for post in posts if post.is_video]
-    random.shuffle(video_posts)
-    
-    selected = video_posts[:2]  # ناخد 2 فقط عشوائي
-    
-    for i, post in enumerate(selected):
-        print(f"⬇️ تحميل الفيديو {i+1} من {profile_name}")
-        try:
-            L.download_post(post, target=profile_name)
-        except Exception as e:
-            print(f"❌ فشل تحميل الفيديو من {profile_name}: {e}")
+# إضافة الكوكيز للمتصفح
+for cookie in cookies:
+    driver.add_cookie({
+        "name": cookie["name"],
+        "value": cookie["value"],
+        "domain": cookie["domain"],
+        "path": cookie.get("path", "/")
+    })
 
-print("✅ تم تحميل كل الفيديوهات.")
+# تحديث الصفحة بعد إضافة الكوكيز
+driver.get("https://www.tiktok.com/upload")
+
+time.sleep(10)  # وقت كافي لتحميل صفحة الرفع
+
+print("✅ تم تسجيل الدخول وجاهز للرفع")
+
+driver.quit()
